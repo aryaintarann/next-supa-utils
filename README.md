@@ -16,47 +16,24 @@
 
 ---
 
-## Why?
+## 🚀 Why Use This Over Raw `@supabase/ssr`?
 
-Every Next.js + Supabase project ends up with the same boilerplate:
+If you use `@supabase/ssr` directly, you have to write boilerplate for *every* environment. **next-supa-utils** eliminates this entirely:
 
-- Creating Supabase clients with cookie handling for middleware, server components, and client components
-- Writing try/catch wrappers around every server action
-- Manually checking auth state in middleware and redirecting
+1. **One-Line Middleware**: No more manually copying the 40-line chunking/cookie-setting logic from the Supabase docs. Just pass your routes to `withSupaAuth()`.
+2. **Type-Safe Server Actions**: Stop writing `try/catch` and `cookies().getAll()` in every server action. `createAction()` handles it automatically and forces you to check for errors.
+3. **Instant Client Hooks**: `useSupaUser()` and `useSupaSession()` wrap `createBrowserClient`, fetch the initial state, *and* subscribe to real-time `onAuthStateChange` events out of the box.
+4. **App Router Ready**: Strictly separated entry points (`/client` and `/server`) guarantee you won't accidentally import server code into client components.
 
-**next-supa-utils** extracts these patterns into a single, type-safe library with separate entry points for client and server code — fully compatible with the Next.js App Router architecture.
-
-## Features
-
-- 🔐 **`withSupaAuth`** — Drop-in middleware for route protection with redirect support
-- ⚡ **`createAction`** — Higher-order function that wraps server actions with automatic Supabase client creation and error handling
-- 👤 **`useSupaUser`** — React hook for real-time user state with auth change subscriptions
-- 🔑 **`useSupaSession`** — React hook for real-time session state
-- 🧩 **Separate entry points** — `next-supa-utils/client` and `next-supa-utils/server` to respect the `"use client"` boundary
-- 📦 **Dual format** — Ships ESM and CJS with full TypeScript declarations
-
-## Installation
+## 📦 Installation
 
 ```bash
 npm install next-supa-utils
 ```
 
-### Peer Dependencies
+*Requires `react >=18`, `next >=14`, `@supabase/supabase-js ^2`, and `@supabase/ssr >=0.5`.*
 
-Make sure you have the following installed in your project:
-
-```bash
-npm install react next @supabase/supabase-js @supabase/ssr
-```
-
-| Package | Version |
-|---|---|
-| `react` | `>=18` |
-| `next` | `>=14` |
-| `@supabase/supabase-js` | `^2.0.0` |
-| `@supabase/ssr` | `>=0.5.0` |
-
-## Environment Variables
+### Environment Variables
 
 Add these to your `.env.local`:
 
@@ -65,73 +42,61 @@ NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-Both variables are required. All helpers in this library read from these environment variables automatically.
-
 ---
 
-## Quick Start
+## ⚡ Quick Start
 
-### 1. Protect Routes with Middleware
+### 1. Middleware (Route Protection in 1 Line)
+
+Protect your routes and auto-refresh sessions without copying boilerplate.
 
 ```ts
 // middleware.ts
 import { withSupaAuth } from "next-supa-utils/server";
 
 export default withSupaAuth({
-  protectedRoutes: ["/dashboard", "/admin", "/settings"],
+  protectedRoutes: ["/dashboard", "/admin"],
   redirectTo: "/login",
-  publicRoutes: ["/admin/login"],
 });
 
-export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
-};
+export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"] };
 ```
 
-### 2. Create Type-Safe Server Actions
+### 2. Server Actions (No More Try/Catch)
+
+Automatically initializes the server client with cookies and returns a type-safe `{ data, error }` object.
 
 ```ts
-// app/actions/profile.ts
+// app/actions.ts
 "use server";
 import { createAction } from "next-supa-utils/server";
 
 export const getProfile = createAction(async (supabase, userId: string) => {
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", userId)
-    .single();
-
-  if (error) throw error;
+  const { data, error } = await supabase.from("profiles").select().eq("id", userId).single();
+  if (error) throw error; // Handled automatically!
   return data;
 });
 ```
 
 ```tsx
-// Usage in any component
-const result = await getProfile("user-uuid");
-
-if (result.error) {
-  console.error(result.error.message);
-} else {
-  console.log(result.data);
-}
+// Usage
+const { data, error } = await getProfile("123");
+if (error) console.error(error.message);
 ```
 
-### 3. Use Auth State in Client Components
+### 3. Client Components (Real-Time User State)
+
+Get the user and listen to auth changes immediately.
 
 ```tsx
 "use client";
 import { useSupaUser } from "next-supa-utils/client";
 
 export default function Avatar() {
-  const { user, loading, error } = useSupaUser();
+  const { user, loading } = useSupaUser();
 
-  if (loading) return <p>Loading…</p>;
-  if (error) return <p>Error: {error.message}</p>;
-  if (!user) return <p>Not signed in</p>;
+  if (loading) return <p>Loading...</p>;
+  if (!user) return <p>Please sign in</p>;
 
   return <p>Hello, {user.email}!</p>;
 }
