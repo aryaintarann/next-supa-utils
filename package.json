@@ -1,0 +1,99 @@
+{
+  "name": "next-supa-utils",
+  "version": "0.1.0",
+  "description": "Eliminate Supabase boilerplate in Next.js App Router — hooks, middleware helpers, and server action wrappers.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/shared/index.js",
+  "module": "./dist/shared/index.mjs",
+  "types": "./dist/shared/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/shared/index.d.mts",
+        "default": "./dist/shared/index.mjs"
+      },
+      "require": {
+        "types": "./dist/shared/index.d.ts",
+        "default": "./dist/shared/index.js"
+      }
+    },
+    "./client": {
+      "import": {
+        "types": "./dist/client/index.d.mts",
+        "default": "./dist/client/index.mjs"
+      },
+      "require": {
+        "types": "./dist/client/index.d.ts",
+        "default": "./dist/client/index.js"
+      }
+    },
+    "./server": {
+      "import": {
+        "types": "./dist/server/index.d.mts",
+        "default": "./dist/server/index.mjs"
+      },
+      "require": {
+        "types": "./dist/server/index.d.ts",
+        "default": "./dist/server/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "next": ">=14",
+    "@supabase/supabase-js": "^2.0.0",
+    "@supabase/ssr": ">=0.5.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": false
+    },
+    "next": {
+      "optional": false
+    }
+  },
+  "devDependencies": {
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.49.1",
+    "@types/node": "^22.13.10",
+    "@types/react": "^19.0.10",
+    "next": "^15.2.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2"
+  },
+  "keywords": [
+    "next.js",
+    "supabase",
+    "react",
+    "hooks",
+    "middleware",
+    "server-actions",
+    "app-router",
+    "ssr",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aryaintarann/next-supa-utils.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aryaintarann/next-supa-utils/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
