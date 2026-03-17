@@ -102,6 +102,30 @@ export default function Avatar() {
 }
 ```
 
+### 4. Route Handlers (API Routes)
+
+Wrap your Next.js API endpoints to automatically handle Supabase errors and enforce authentication.
+
+```ts
+// app/api/posts/route.ts
+import { routeWrapper } from "next-supa-utils/server";
+import { NextResponse } from "next/server";
+
+export const POST = routeWrapper(
+  async (request, { supabase, user }) => {
+    const body = await request.json();
+    const { data, error } = await supabase
+      .from("posts")
+      .insert({ ...body, user_id: user!.id })
+      .single();
+      
+    if (error) throw error; // Auto-caught and returned as 500
+    return NextResponse.json({ data });
+  },
+  { requireAuth: true } // Auto-returns 401 if not logged in
+);
+```
+
 ---
 
 ## API Reference
@@ -161,6 +185,29 @@ function createAction<TArgs extends unknown[], TResult>(
 
 ---
 
+#### `routeWrapper(handler, options?)`
+
+Wraps a Next.js App Router Route Handler (e.g., `GET`, `POST`) with automatic try-catch, error normalization, and optional authentication gating.
+
+**Signature:**
+
+```ts
+function routeWrapper<TContext>(
+  handler: (request: NextRequest, context: RouteHandlerContext<TContext>) => Promise<NextResponse | Response>,
+  options?: RouteWrapperOptions
+): (request: NextRequest, context: NextRouteContext) => Promise<NextResponse>
+```
+
+**Options (`RouteWrapperOptions`):**
+- `requireAuth` (`boolean`): If `true`, returns a `401 Unauthorized` response if the user has no valid session.
+
+**Context (`RouteHandlerContext`):**
+- `params`: Auto-resolved dynamic route params (e.g., `{ id: "123" }`).
+- `supabase`: An initialized Supabase server client (always available).
+- `user`: The authenticated user (guaranteed non-null if `requireAuth: true`).
+
+---
+
 ### Client — `next-supa-utils/client`
 
 > ⚠️ All client exports include the `"use client"` directive. They must be used inside Client Components only.
@@ -196,6 +243,45 @@ React hook that provides the current session (access token, refresh token, expir
 | `session` | `Session \| null` | The current Supabase session, or `null` if not authenticated |
 | `loading` | `boolean` | `true` while the initial fetch is in progress |
 | `error` | `SupaError \| null` | Error details if the fetch failed |
+
+---
+
+#### `useSupaUpload(bucketName)`
+
+React hook that simplifies uploading files to Supabase Storage with **real-time progress tracking** (using direct XHR to bypass the JS SDK's lack of progress events).
+
+**Returns:** `UseSupaUploadReturn`
+
+| Property | Type | Description |
+|---|---|---|
+| `upload` | `(file: File, options?: UploadOptions) => Promise<void>` | Upload function. Options admit `path`, `upsert`, `cacheControl`, `contentType`. |
+| `isUploading` | `boolean` | `true` while the upload is in progress |
+| `progress` | `number` | Upload progress percentage (0–100) updated in real-time |
+| `data` | `{ path: string; fullPath: string } \| null` | Successful upload result |
+| `error` | `SupaError \| null` | Error details if upload failed |
+| `cancel` | `() => void` | Aborts the in-flight upload |
+| `reset` | `() => void` | Resets the hook state |
+
+---
+
+#### `useSupaRealtime(table, event, callback, schema?)`
+
+React hook that subscribes to Supabase Realtime `postgres_changes` events. **Safely cleans up** the subscription on unmount to prevent memory leaks and duplicate listeners.
+
+**Parameters:**
+
+- `table` (`string`): The database table to listen to.
+- `event` (`"INSERT" \| "UPDATE" \| "DELETE" \| "*"`): The event type.
+- `callback` (`(payload: RealtimePayload) => void`): Function invoked on each event.
+- `schema` (`string`, default `"public"`): The database schema.
+
+**Example:**
+
+```tsx
+useSupaRealtime("messages", "INSERT", (payload) => {
+  console.log("New message:", payload.new);
+});
+```
 
 ---
 
@@ -268,11 +354,18 @@ src/
 
 | Import | Environment | Contains |
 |---|---|---|
-| `next-supa-utils/client` | Client Components | `useSupaUser`, `useSupaSession` |
-| `next-supa-utils/server` | Server Components, Middleware, Server Actions | `withSupaAuth`, `createAction` |
+| `next-supa-utils/client` | Client Components | `useSupaUser`, `useSupaSession`, `useSupaUpload`, `useSupaRealtime` |
+| `next-supa-utils/server` | Server Components, Middleware, Server Actions, Route Handlers | `withSupaAuth`, `createAction`, `routeWrapper` |
 | `next-supa-utils` | Anywhere | `handleSupaError`, all types |
 
 ## Changelog
+
+### v0.1.5
+
+- **🚀 New Features:**
+  - `useSupaUpload` — React hook for uploading files to Supabase Storage with **real-time progress tracking** (using direct XHR to REST API, no extra dependencies) and abort capabilities.
+  - `useSupaRealtime` — React hook to subscribe to Supabase Realtime `postgres_changes` events with **safe auto-cleanup** (prevents memory leaks on unmount).
+  - `routeWrapper` — Higher-order function for Next.js Route Handlers (API routes) with auto try-catch, standardized error responses, and optional auth gating (`requireAuth: true`).
 
 ### v0.1.3
 
