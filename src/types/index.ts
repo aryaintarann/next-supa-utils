@@ -89,6 +89,20 @@ export interface MiddlewareOptions {
   }) => void | Promise<void>;
 }
 
+// ── Route Handler wrapper configuration ─────────────────────────────
+
+/** Options for the `routeWrapper` higher-order function. */
+export interface RouteWrapperOptions {
+  /**
+   * If `true`, the wrapper will initialise a Supabase server client,
+   * verify the session via `getUser()`, and reject with 401 if invalid.
+   * The `context.supabase` and `context.user` are guaranteed non-null.
+   *
+   * @default false
+   */
+  requireAuth?: boolean;
+}
+
 // ── Hook return types ───────────────────────────────────────────────
 
 export interface UseSupaUserReturn {

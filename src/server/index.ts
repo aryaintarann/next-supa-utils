@@ -4,6 +4,8 @@
 
 export { withSupaAuth } from "./middleware/withSupaAuth";
 export { createAction } from "./actions/actionWrapper";
+export { routeWrapper } from "./actions/routeWrapper";
+export type { RouteHandlerContext } from "./actions/routeWrapper";
 
 // Re-export types consumers commonly need alongside server helpers.
-export type { MiddlewareOptions, RouteConfig, ActionResponse, SupaError } from "../types";
+export type { MiddlewareOptions, RouteConfig, RouteWrapperOptions, ActionResponse, SupaError } from "../types";
