@@ -33,7 +33,7 @@ npm install next-supa-utils
 
 *Requires `react >=18`, `next >=14`, `@supabase/supabase-js ^2`, and `@supabase/ssr >=0.5`.*
 
-### Environment Variables
+### Environment Variables (Default)
 
 Add these to your `.env.local`:
 
@@ -41,6 +41,33 @@ Add these to your `.env.local`:
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
+
+### Explicit Configuration (Optional)
+
+If you are using a self-hosted Supabase instance or need to pass credentials dynamically, you can skip the environment variables and pass them explicitly:
+
+**Client Setup:**
+Wrap your application in `<SupaProvider>` to inject credentials into all client hooks.
+
+```tsx
+// app/layout.tsx
+import { SupaProvider } from "next-supa-utils/client";
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <SupaProvider supabaseUrl="https://custom..." supabaseAnonKey="ey...">
+          {children}
+        </SupaProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+**Server Setup:**
+All server-side helpers accept `supabaseUrl` and `supabaseAnonKey` in their options.
 
 ---
 
@@ -144,6 +171,8 @@ Creates a Next.js middleware function that handles session refresh and route pro
 | `redirectTo` | `string` | — | `"/login"` | Where to redirect unauthenticated users |
 | `publicRoutes` | `string[]` | — | `[]` | Routes that are always public, even if matching a protected prefix |
 | `onAuthSuccess` | `(user: { id: string; email?: string }) => void \| Promise<void>` | — | — | Optional callback after successful auth verification |
+| `supabaseUrl` | `string` | — | `process.env` | Explicit Supabase URL (overrides env vars) |
+| `supabaseAnonKey` | `string` | — | `process.env` | Explicit Supabase Anon Key (overrides env vars) |
 
 **Returns:** `(request: NextRequest) => Promise<NextResponse>`
 
@@ -200,6 +229,8 @@ function routeWrapper<TContext>(
 
 **Options (`RouteWrapperOptions`):**
 - `requireAuth` (`boolean`): If `true`, returns a `401 Unauthorized` response if the user has no valid session.
+- `supabaseUrl` (`string`): Explicit Supabase URL.
+- `supabaseAnonKey` (`string`): Explicit Supabase Anon Key.
 
 **Context (`RouteHandlerContext`):**
 - `params`: Auto-resolved dynamic route params (e.g., `{ id: "123" }`).
@@ -211,6 +242,18 @@ function routeWrapper<TContext>(
 ### Client — `next-supa-utils/client`
 
 > ⚠️ All client exports include the `"use client"` directive. They must be used inside Client Components only.
+
+#### `<SupaProvider>`
+
+A React Context Provider to explicitly inject your Supabase URL and Anon Key into the React tree. It is **optional** if you are using the standard `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` environment variables.
+
+```tsx
+<SupaProvider supabaseUrl="https://..." supabaseAnonKey="ey...">
+  {children}
+</SupaProvider>
+```
+
+---
 
 #### `useSupaUser()`
 
@@ -359,6 +402,12 @@ src/
 | `next-supa-utils` | Anywhere | `handleSupaError`, all types |
 
 ## Changelog
+
+### v0.1.6
+
+- **⚙️ Explicit Configuration Support** — Added support for custom/self-hosted Supabase instances. You are no longer strictly required to use `process.env`.
+  - Added `<SupaProvider>` for client components.
+  - Added `supabaseUrl` and `supabaseAnonKey` options to `withSupaAuth`, `routeWrapper`, and `createAction`.
 
 ### v0.1.5
 
