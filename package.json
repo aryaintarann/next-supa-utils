@@ -1,6 +1,6 @@
 {
   "name": "next-supa-utils",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Eliminate Supabase boilerplate in Next.js App Router — hooks, middleware helpers, and server action wrappers.",
   "license": "MIT",
   "type": "module",
