@@ -5,6 +5,7 @@ import { createBrowserClient } from "@supabase/ssr";
 
 import type { UseSupaUserReturn } from "../../types";
 import { handleSupaError } from "../../shared/utils/error-handler";
+import { useSupaConfig } from "../SupaProvider";
 
 /**
  * React hook that provides the current Supabase user and
@@ -35,23 +36,10 @@ export function useSupaUser(): UseSupaUserReturn {
     error: null,
   });
 
+  // Get config from Context or Environment
+  const { url: supabaseUrl, key: supabaseAnonKey } = useSupaConfig();
+
   useEffect(() => {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) {
-      setState({
-        user: null,
-        loading: false,
-        error: {
-          message:
-            "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables.",
-          code: "CONFIG_ERROR",
-        },
-      });
-      return;
-    }
-
     const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
 
     // ── Initial fetch ─────────────────────────────────────────────

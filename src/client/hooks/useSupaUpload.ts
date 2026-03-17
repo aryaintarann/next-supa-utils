@@ -5,6 +5,7 @@ import { createBrowserClient } from "@supabase/ssr";
 
 import type { UseSupaUploadReturn, UploadOptions } from "../../types";
 import { handleSupaError } from "../../shared/utils/error-handler";
+import { useSupaConfig } from "../SupaProvider";
 
 /**
  * React hook that simplifies uploading files to Supabase Storage
@@ -54,19 +55,12 @@ export function useSupaUpload(bucketName: string): UseSupaUploadReturn {
   // Stable reference to the Supabase client (used only to get the session token).
   const supabaseRef = useRef<ReturnType<typeof createBrowserClient> | null>(null);
 
+  // Get config from Context or Environment
+  const { url: supabaseUrl, key: supabaseAnonKey } = useSupaConfig();
+
   function getClient() {
     if (supabaseRef.current) return supabaseRef.current;
-
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!url || !key) {
-      throw new Error(
-        "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables.",
-      );
-    }
-
-    supabaseRef.current = createBrowserClient(url, key);
+    supabaseRef.current = createBrowserClient(supabaseUrl, supabaseAnonKey);
     return supabaseRef.current;
   }
 
@@ -80,8 +74,6 @@ export function useSupaUpload(bucketName: string): UseSupaUploadReturn {
 
       try {
         const supabase = getClient();
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
         // Retrieve the current session token for authorization.
         const {

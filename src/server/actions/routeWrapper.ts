@@ -45,15 +45,15 @@ export function routeWrapper<TContext extends Record<string, unknown> = Record<s
   ) => Promise<NextResponse | Response>,
   options?: RouteWrapperOptions,
 ) {
-  const { requireAuth = false } = options ?? {};
+  const { requireAuth = false, supabaseUrl: optUrl, supabaseAnonKey: optKey } = options ?? {};
 
   return async (
     request: NextRequest,
     routeContext?: { params?: Promise<TContext> },
   ): Promise<NextResponse> => {
     try {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      const supabaseUrl = optUrl ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseAnonKey = optKey ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
       if (!supabaseUrl || !supabaseAnonKey) {
         return NextResponse.json(

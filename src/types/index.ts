@@ -65,6 +65,18 @@ export interface MiddlewareOptions {
   redirectTo?: string;
 
   /**
+   * Explicit Supabase Project URL.
+   * If omitted, falls back to `process.env.NEXT_PUBLIC_SUPABASE_URL`.
+   */
+  supabaseUrl?: string;
+
+  /**
+   * Explicit Supabase Anon Key.
+   * If omitted, falls back to `process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+   */
+  supabaseAnonKey?: string;
+
+  /**
    * Strategy for extracting the user's role from the Supabase user object.
    *
    * - `"user_metadata"` — reads `user.user_metadata.role`
@@ -101,6 +113,35 @@ export interface RouteWrapperOptions {
    * @default false
    */
   requireAuth?: boolean;
+
+  /**
+   * Explicit Supabase Project URL.
+   * If omitted, falls back to `process.env.NEXT_PUBLIC_SUPABASE_URL`.
+   */
+  supabaseUrl?: string;
+
+  /**
+   * Explicit Supabase Anon Key.
+   * If omitted, falls back to `process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+   */
+  supabaseAnonKey?: string;
+}
+
+// ── Server Action configuration ─────────────────────────────────────
+
+/** Options for the `createAction` wrapper. */
+export interface ServerActionOptions {
+  /**
+   * Explicit Supabase Project URL.
+   * If omitted, falls back to `process.env.NEXT_PUBLIC_SUPABASE_URL`.
+   */
+  supabaseUrl?: string;
+
+  /**
+   * Explicit Supabase Anon Key.
+   * If omitted, falls back to `process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+   */
+  supabaseAnonKey?: string;
 }
 
 // ── Hook return types ───────────────────────────────────────────────

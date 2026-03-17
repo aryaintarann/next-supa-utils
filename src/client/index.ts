@@ -5,6 +5,7 @@
 // The "use client" directive ensures Next.js treats the entire
 // sub-tree as client-side code.
 
+export { SupaProvider, useSupaConfig } from "./SupaProvider";
 export { useSupaUser } from "./hooks/useSupaUser";
 export { useSupaSession } from "./hooks/useSupaSession";
 export { useSupaUpload } from "./hooks/useSupaUpload";

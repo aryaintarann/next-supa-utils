@@ -2,7 +2,7 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import type { ActionResponse, SupaError } from "../../types";
+import type { ActionResponse, SupaError, ServerActionOptions } from "../../types";
 import { handleSupaError } from "../../shared/utils/error-handler";
 
 /**
@@ -35,11 +35,12 @@ import { handleSupaError } from "../../shared/utils/error-handler";
  */
 export function createAction<TArgs extends unknown[], TResult>(
   fn: (supabase: SupabaseClient, ...args: TArgs) => Promise<TResult>,
+  options?: ServerActionOptions,
 ): (...args: TArgs) => Promise<ActionResponse<TResult>> {
   return async (...args: TArgs): Promise<ActionResponse<TResult>> => {
     try {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      const supabaseUrl = options?.supabaseUrl ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseAnonKey = options?.supabaseAnonKey ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
       if (!supabaseUrl || !supabaseAnonKey) {
         return {

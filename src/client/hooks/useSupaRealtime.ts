@@ -5,6 +5,7 @@ import { createBrowserClient } from "@supabase/ssr";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
 import type { RealtimeEvent, RealtimePayload } from "../../types";
+import { useSupaConfig } from "../SupaProvider";
 
 /**
  * React hook that subscribes to Supabase Realtime postgres_changes
@@ -53,17 +54,10 @@ export function useSupaRealtime<T extends Record<string, unknown> = Record<strin
   // Store the channel so we can clean it up.
   const channelRef = useRef<RealtimeChannel | null>(null);
 
+  // Get config from Context or Environment
+  const { url: supabaseUrl, key: supabaseAnonKey } = useSupaConfig();
+
   useEffect(() => {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) {
-      console.error(
-        "[next-supa-utils] Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables.",
-      );
-      return;
-    }
-
     const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
 
     // Generate a unique channel name to avoid collisions.
