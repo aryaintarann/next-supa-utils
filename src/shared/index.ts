@@ -6,7 +6,8 @@ export { handleSupaError } from "./utils/error-handler";
 export type {
   SupaError,
   ActionResponse,
-  SupaAuthConfig,
+  MiddlewareOptions,
+  RouteConfig,
   UseSupaUserReturn,
   UseSupaSessionReturn,
 } from "../types";

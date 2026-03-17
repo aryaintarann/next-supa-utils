@@ -272,6 +272,31 @@ src/
 | `next-supa-utils/server` | Server Components, Middleware, Server Actions | `withSupaAuth`, `createAction` |
 | `next-supa-utils` | Anywhere | `handleSupaError`, all types |
 
+## Changelog
+
+### v0.1.3
+
+- **🔐 RBAC Support** — `withSupaAuth` now supports **role-based access control**.
+  - New `RouteConfig` type: define `allowedRoles` per route (e.g. `["admin", "editor"]`).
+  - New `MiddlewareOptions` replaces the old `SupaAuthConfig`.
+  - New `roleExtractor` option: read roles from `user_metadata`, `app_metadata`, or a custom function.
+  - Wildcard path matching supported (e.g. `"/admin/:path*"`).
+  - Unauthorized users are redirected with `?error=forbidden&next=<path>`.
+- **⚠️ Breaking:** `SupaAuthConfig` type removed. Use `MiddlewareOptions` with `routes: RouteConfig[]` instead.
+
+### v0.1.0
+
+- 🎉 **Initial release**
+- `withSupaAuth` — Middleware helper for route protection with session refresh.
+- `createAction` — Type-safe server action wrapper with automatic `{ data, error }` responses.
+- `useSupaUser` — React hook for real-time user state.
+- `useSupaSession` — React hook for real-time session state.
+- `handleSupaError` — Universal error normalizer.
+- Multi-entry package: `next-supa-utils/client`, `next-supa-utils/server`.
+- Dual format output (ESM + CJS) with TypeScript declarations.
+
+---
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
